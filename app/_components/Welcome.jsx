@@ -22,9 +22,11 @@ const Welcome = (props) => {
         data: { user },
       } = await supabase.auth.getUser();
 
-      console.log(user);
+      // console.log(user);
       setUserData(user);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {

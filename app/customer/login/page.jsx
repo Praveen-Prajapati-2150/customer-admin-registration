@@ -20,7 +20,7 @@ const page = () => {
   return (
     <div className="flex h-screen flex-col items-center justify-center p-24">
       {token ? (
-        <Welcome role={'Customer'} />
+        <Welcome role={'Customer'} setToken={setToken} />
       ) : (
         <LoginModel getToken={getToken} type={'Customer'} />
       )}
