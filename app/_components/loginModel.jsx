@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   CardHeader,
@@ -16,11 +16,22 @@ import Link from 'next/link';
 import { supabase } from '../client';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser } from '../redux/userSlice';
+import Router from 'next/router';
 
 const LoginModel = (props) => {
   const { type, getToken } = props;
   const urlType = type.toLowerCase();
   const router = useRouter();
+  const dispatch = useDispatch();
+
+  const {
+    user,
+    token: token_,
+    loading,
+    error,
+  } = useSelector((state) => state.user);
 
   const [inputType, setInputType] = useState(true);
   const [fieldData, setFieldData] = useState({
@@ -29,6 +40,15 @@ const LoginModel = (props) => {
     role: type,
   });
   const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    if (token_) {
+      setToken(token_);
+      getToken(token_);
+      // sessionStorage.setItem('token', JSON.stringify(token_));
+    }
+    console.log(token_);
+  }, [token_]);
 
   const handleInputFields = (e) => {
     const { name, value } = e?.target;
@@ -49,26 +69,44 @@ const LoginModel = (props) => {
     });
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: fieldData.emailId,
-        password: fieldData.password,
-      });
-      if (data.session.access_token) {
-        sessionStorage.setItem(
-          'token',
-          JSON.stringify(data.session.access_token)
-        );
-        setToken(data.session.access_token);
-        getToken(data.session.access_token);
+      // const { data, error } = await supabase.auth.signInWithPassword({
+      //   email: fieldData.emailId,
+      //   password: fieldData.password,
+      // });
+
+      const result = await dispatch(
+        loginUser({
+          data: {
+            email: fieldData.emailId,
+            password: fieldData.password,
+          },
+        })
+      );
+      if (loginUser.fulfilled.match(result)) {
+        toast('Login Successfully');
+        const { id, first_name, last_name, role } = result.payload.user;
+        router.push({
+          pathname: `/${type}/login`,
+          query: { id, first_name, last_name, role },
+        });
       }
+
+      // if (data.session.access_token) {
+      // sessionStorage.setItem(
+      //   'token',
+      //   JSON.stringify(data.session.access_token)
+      // );
+      // setToken(data.session.access_token);
+      // getToken(data.session.access_token);
+      // }
 
       if (error) {
         toast(error.message);
-      } else if (data) {
-        toast('Login Successfully!');
       }
     } catch (error) {
-      alert(error);
+      console.log(error);
+      console.log(error.message);
+      // alert(error);
     }
   };
 

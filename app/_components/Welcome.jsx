@@ -3,27 +3,48 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { supabase } from '../client';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUserProfile, logoutUser } from '../redux/userSlice';
 
 const Welcome = (props) => {
-  const { role, setToken } = props;
+  // const { role, setToken } = props;
+  const { setToken } = props;
   const router = useRouter();
+  const dispatch = useDispatch();
+
+  const { id, first_name, last_name, role } = router.query || {};
+
+  const {
+    user,
+    token: token_,
+    loading,
+    error,
+  } = useSelector((state) => state.user);
+
+  console.log(user, token_, first_name, last_name, role);
+
   const [userData, setUserData] = useState(null);
 
   const handleLogout = () => {
-    sessionStorage.removeItem('token');
-    setToken(null);
+    // sessionStorage.removeItem('token');
 
+    dispatch(logoutUser());
+    setToken(null);
     router.push('/');
   };
 
+  useEffect(() => {
+    if (token_) {
+      setToken(token_);
+    }
+  }, [user, token_]);
+
   const getUserDetails = async () => {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      // console.log(user);
-      setUserData(user);
+      // const {
+      //   data: { user },
+      // } = await supabase.auth.getUser();
+      // dispatch(fetchUserProfile('3'));
     } catch (error) {
       console.log(error);
     }
@@ -42,14 +63,9 @@ const Welcome = (props) => {
               Welcome to the World
               <strong className="font-extrabold text-red-700 sm:block">
                 {' '}
-                of {userData?.user_metadata?.role} Portal.{' '}
+                of {role} Portal.{' '}
               </strong>
             </h1>
-
-            {/* <p className="mt-4 sm:text-xl/relaxed">
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nesciunt
-              illo tenetur fuga ducimus numquam ea!
-            </p> */}
 
             <a
               href="#"
@@ -60,12 +76,10 @@ const Welcome = (props) => {
               <div className="sm:flex sm:justify-between sm:gap-4">
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
-                    {userData?.user_metadata?.first_name}{' '}
-                    {userData?.user_metadata?.last_name}
+                    {first_name} {last_name}
                   </h3>
 
                   <p className="mt-1 text-xs font-medium text-gray-600">
-                    {' '}
                     Lorem ipsum dolor sit, amet consectetur adipisicing elit. At
                     velit illum provident a, ipsa maiores deleniti consectetur
                     nobis et eaque.
@@ -101,18 +115,10 @@ const Welcome = (props) => {
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Button
                 className="block w-full rounded bg-red-600 px-12 py-3 text-sm font-medium text-white shadow hover:bg-red-700 focus:outline-none focus:ring active:bg-red-500 sm:w-auto"
-                // href="#"
                 onClick={handleLogout}
               >
                 Logout
               </Button>
-
-              {/* <a
-                className="block w-full rounded px-12 py-3 text-sm font-medium text-red-600 shadow hover:text-red-700 focus:outline-none focus:ring active:text-red-500 sm:w-auto"
-                href="#"
-              >
-                Learn More
-              </a> */}
             </div>
           </div>
         </div>

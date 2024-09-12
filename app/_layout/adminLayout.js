@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import Welcome from '../_components/Welcome';
 import { supabase } from '../client';
+import { useSelector } from 'react-redux';
 
 const AdminLayout = ({ children }) => {
   const [token, setToken] = useState(null);
@@ -10,16 +11,19 @@ const AdminLayout = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [countdown, setCountdown] = useState(5);
 
+  const {
+    user,
+    token: token_,
+    loading,
+    error,
+  } = useSelector((state) => state.user);
+
   const getUserDetails = async (token) => {
     try {
-      //   const {
-      //     data: { user },
-      //   } = await supabase.auth.getUser();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser(token);
-
-      setUserData(user);
+      // const {
+      //   data: { user },
+      // } = await supabase.auth.getUser(token);
+      // setUserData(user);
     } catch (error) {
       console.log(error);
     }
@@ -27,10 +31,16 @@ const AdminLayout = ({ children }) => {
 
   useEffect(() => {
     if (sessionStorage.getItem('token')) {
-      let data = JSON.parse(sessionStorage.getItem('token'));
+      let data = sessionStorage.getItem('token');
       setToken(data);
     }
   }, []);
+
+  useEffect(() => {
+    if (token_) {
+      setToken(token_);
+    }
+  }, [token_]);
 
   useEffect(() => {
     if (token) {
@@ -52,10 +62,8 @@ const AdminLayout = ({ children }) => {
     }
   }, [countdown, router, userData]);
 
-  console.log(userData?.user_metadata?.role);
   console.log(userData);
-  //   console.log(userData?.user_metadata?.role === undefined);
-
+  
   if (!userData || userData?.user_metadata?.role === 'Admin') {
     return <>{children}</>;
   }

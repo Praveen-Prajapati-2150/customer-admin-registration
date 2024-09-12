@@ -8,12 +8,12 @@ const AuthLayout = ({ children }) => {
   const router = useRouter();
 
   if (token) {
-    sessionStorage.setItem('token', JSON.stringify(token));
+    sessionStorage.setItem('token', token);
   }
 
   useEffect(() => {
     if (sessionStorage.getItem('token')) {
-      let data = JSON.parse(sessionStorage.getItem('token'));
+      let data = sessionStorage.getItem('token');
       setToken(data);
     }
   }, []);

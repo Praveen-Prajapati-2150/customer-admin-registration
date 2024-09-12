@@ -15,10 +15,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 import { supabase } from '../client';
 import { toast } from 'sonner';
+import { useDispatch } from 'react-redux';
+import { registerUser } from '../redux/userSlice';
+import { useRouter } from 'next/navigation';
 
 const RegistrationModel = (props) => {
   const { type } = props;
   const urlType = type.toLowerCase();
+  const dispatch = useDispatch();
+  const router = useRouter();
 
   const [inputType, setInputType] = useState(true);
   const [fieldData, setFieldData] = useState({
@@ -48,24 +53,43 @@ const RegistrationModel = (props) => {
     });
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: fieldData.emailId,
-        password: fieldData.password,
-        options: {
+      // const { data, error } = await supabase.auth.signUp({
+      //   email: fieldData.emailId,
+      //   password: fieldData.password,
+      //   options: {
+      //     data: {
+      // first_name: fieldData.firstName,
+      // last_name: fieldData.lastName,
+      // role: fieldData.role,
+      //     },
+      //   },
+      // });
+
+      // const handleRegister = () => {
+      dispatch(
+        registerUser({
           data: {
             first_name: fieldData.firstName,
             last_name: fieldData.lastName,
+            email: fieldData.emailId,
+            password: fieldData.password,
             role: fieldData.role,
           },
-        },
-      });
+          router,
+          urlType
+        })
+      );
+      // };
+
       if (error) {
         toast(error.message);
       } else if (data) {
         toast('Check your mail for confirmation link');
       }
     } catch (error) {
-      alert(error);
+      console.log(error);
+      // alert(error);
+      toast(error.message);
     }
   };
 

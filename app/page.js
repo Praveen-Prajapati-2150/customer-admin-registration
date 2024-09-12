@@ -6,6 +6,7 @@ import Link from 'next/link';
 import AuthLayout from './_layout/authLayout';
 import Hero from './_components/Hero';
 
+
 export default function Home() {
   return (
     <AuthLayout>

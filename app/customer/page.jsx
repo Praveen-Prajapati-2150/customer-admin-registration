@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import RegistrationModel from '../_components/registrationModel';
 import LoginModel from '../_components/loginModel';

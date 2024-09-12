@@ -3,8 +3,16 @@ import LoginModel from '@/app/_components/loginModel';
 import React, { useEffect, useState } from 'react';
 import Welcome from '@/app/_components/Welcome';
 import AdminLayout from '@/app/_layout/adminLayout';
+import { useSelector } from 'react-redux';
 
 const page = () => {
+  const {
+    user,
+    token: token_,
+    loading,
+    error,
+  } = useSelector((state) => state.user);
+
   const [token, setToken] = useState(null);
 
   const getToken = (token_) => {
@@ -12,8 +20,14 @@ const page = () => {
   };
 
   useEffect(() => {
+    if (token_) {
+      setToken(token_);
+    }
+  }, [token_]);
+
+  useEffect(() => {
     if (sessionStorage.getItem('token')) {
-      let data = JSON.parse(sessionStorage.getItem('token'));
+      let data = sessionStorage.getItem('token');
       setToken(data);
     }
   }, []);
